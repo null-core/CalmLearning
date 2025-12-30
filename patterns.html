@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pattern Builder – Calm Learning</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 40px;
+        background: #f5f5f5;
+        position: relative;
+    }
+
+    /* Home button */
+    #homeBtn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-size: 50px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    h1 {
+        font-size: 38px;
+        margin-bottom: 20px;
+    }
+
+    #pattern {
+        font-size: 80px;
+        margin: 40px 0;
+    }
+
+    #options {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+
+    .option {
+        background: white;
+        padding: 25px 35px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: pointer;
+        transition: 0.2s;
+        font-size: 70px;
+        user-select: none;
+    }
+
+    .option:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+
+    .correct {
+        background: #b6f7b0 !important;
+    }
+
+    .wrong {
+        background: #ffb3b3 !important;
+    }
+
+    /* Bottom feedback */
+    #feedback {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 120px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+</style>
+</head>
+<body>
+
+<a id="homeBtn" href="index.html">🏠</a>
+
+<h1>Pattern Builder</h1>
+
+<div id="pattern"></div>
+<div id="options"></div>
+
+<div id="feedback"></div>
+
+<script>
+// Symbols for ABAB and ABCABC patterns
+const symbols = ["🔵", "🔴", "🟢", "🟡", "🟣", "🟠", "⬛", "⬜", "⭐", "❤️"];
+
+// Symbols for growing patterns
+const growSymbols = ["●", "⭐", "⬛", "❤️"];
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function showFeedback(symbol) {
+    const fb = document.getElementById("feedback");
+    fb.textContent = symbol;
+    fb.style.color = symbol === "✓" ? "green" : "red";
+    fb.style.opacity = 1;
+
+    setTimeout(() => {
+        fb.style.opacity = 0;
+    }, 600);
+}
+
+function generateABAB() {
+    shuffle(symbols);
+    const a = symbols[0];
+    const b = symbols[1];
+
+    const pattern = [a, b, a, b];
+    const correct = a;
+
+    return { pattern, correct };
+}
+
+function generateABCABC() {
+    shuffle(symbols);
+    const a = symbols[0];
+    const b = symbols[1];
+    const c = symbols[2];
+
+    const pattern = [a, b, c, a, b, c];
+    const correct = a;
+
+    return { pattern, correct };
+}
+
+function generateGrowing() {
+    shuffle(growSymbols);
+    const base = growSymbols[0];
+
+    const pattern = [
+        base,
+        base + base,
+        base + base + base
+    ];
+
+    const correct = base + base + base + base;
+
+    return { pattern, correct };
+}
+
+function newRound() {
+    const patternDiv = document.getElementById("pattern");
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    // Choose pattern type
+    const types = ["ABAB", "ABCABC", "GROW"];
+    const chosen = types[Math.floor(Math.random() * types.length)];
+
+    let pattern, correct;
+
+    if (chosen === "ABAB") {
+        ({ pattern, correct } = generateABAB());
+    } else if (chosen === "ABCABC") {
+        ({ pattern, correct } = generateABCABC());
+    } else {
+        ({ pattern, correct } = generateGrowing());
+    }
+
+    // Display pattern with ?
+    patternDiv.textContent = pattern.join(" ") + "  ?";
+
+    // Build options
+    const optionSet = [correct];
+
+    while (optionSet.length < 3) {
+        const candidate = symbols[Math.floor(Math.random() * symbols.length)];
+        if (!optionSet.includes(candidate)) optionSet.push(candidate);
+    }
+
+    shuffle(optionSet);
+
+    // Create option buttons
+    optionSet.forEach(sym => {
+        const btn = document.createElement("div");
+        btn.className = "option";
+        btn.textContent = sym;
+
+        btn.onclick = () => {
+            if (sym === correct) {
+                btn.classList.add("correct");
+                showFeedback("✓");
+            } else {
+                btn.classList.add("wrong");
+                showFeedback("✗");
+            }
+
+            setTimeout(newRound, 800);
+        };
+
+        optionsDiv.appendChild(btn);
+    });
+}
+
+newRound();
+</script>
+
+</body>
+</html>

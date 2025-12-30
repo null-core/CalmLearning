@@ -2,84 +2,221 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Comparison Quiz</title>
+<title>Comparison Quiz – Calm Learning</title>
+
 <style>
     body { 
-        font-family: Arial; 
-        margin: 20px; 
-        font-size: 26px; 
+        font-family: Arial, sans-serif; 
+        background: #f5f5f5;
+        padding: 40px;
+        text-align: center;
     }
-    input, button { 
-        font-size: 26px; 
-        padding: 6px; 
+
+    /* Home button */
+    #homeBtn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-size: 50px;
+        text-decoration: none;
+        cursor: pointer;
     }
-    .question { 
-        margin: 18px 0; 
-        padding-bottom: 15px;
-        border-bottom: 2px solid #ccc;
+
+    h2 {
+        font-size: 40px;
+        margin-bottom: 20px;
     }
-    .summary { 
-        margin-top: 20px; 
-        padding: 10px; 
-        border: 1px solid #ccc; 
-        font-size: 26px;
+
+    /* Visual control panel */
+    .controls {
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-width: 700px;
+        margin: 0 auto 40px;
+        font-size: 24px;
     }
+
+    .control-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        margin: 20px 0;
+    }
+
+    .icon-toggle {
+        font-size: 50px;
+        padding: 10px 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: 0.2s;
+        border: 3px solid #ccc;
+        background: #fff;
+    }
+
+    .icon-toggle.selected {
+        border-color: #4caf50;
+        background: #eaffea;
+        transform: scale(1.15);
+    }
+
+    .slider-label {
+        font-size: 40px;
+    }
+
+    .number-box {
+        font-size: 32px;
+        width: 100px;
+        padding: 6px;
+        border-radius: 10px;
+        border: 2px solid #ccc;
+        text-align: center;
+    }
+
+    /* Score bar */
+    #scoreBar {
+        font-size: 32px;
+        margin-bottom: 30px;
+    }
+
+    /* Visual buttons */
+    #generateBtn, #printBtn {
+        font-size: 70px;
+        cursor: pointer;
+        margin-top: 20px;
+        display: inline-block;
+        transition: 0.2s;
+    }
+
+    #generateBtn:hover, #printBtn:hover {
+        transform: scale(1.15);
+    }
+
+    /* Question cards */
+    .question {
+        font-size: 32px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 15px;
+        max-width: 500px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transition: 0.2s;
+    }
+
+    .correct {
+        background: #b6f7b0 !important;
+    }
+
+    .wrong {
+        background: #ffb3b3 !important;
+    }
+
+    /* Symbol box */
+    .symbol-box {
+        display: inline-block;
+        min-width: 40px;
+        padding: 0 20px;
+        border: 2px solid black;
+        font-size: 40px;
+        text-align: center;
+        transition: transform 0.2s ease;
+    }
+
+    .pop {
+        transform: scale(1.4);
+    }
+
+    /* Choice buttons */
     .choice-group {
         display: flex;
+        justify-content: center;
         gap: 40px;
-        margin-top: 10px;
+        margin-top: 15px;
+        font-size: 40px;
     }
-    .choice-group label {
+
+    .choice-group input {
+        transform: scale(1.8);
+        margin-right: 10px;
         cursor: pointer;
     }
 
     /* PRINT MODE */
     @media print {
-        #controls, #finishBtn, #printBtn {
+        #homeBtn, .controls, #scoreBar, #generateBtn, #printBtn {
             display: none !important;
         }
         body {
             margin: 40px;
             font-size: 28px;
         }
-        .summary {
-            display: none;
-        }
     }
 </style>
 </head>
 <body>
 
-<div id="controls">
-<h2>Comparison Quiz Generator</h2>
+<a id="homeBtn" href="index.html">🏠</a>
 
-<h3>Allow negative numbers?</h3>
-<label><input type="checkbox" id="allowNeg"> Yes</label>
+<h2>Comparison Quiz</h2>
 
-<h3>Maximum number value:</h3>
-<input type="range" id="maxValue" min="5" max="200" value="50" oninput="maxVal.textContent=this.value">
-<span id="maxVal">50</span>
+<div id="scoreBar">Correct: 0 ✓ | Wrong: 0 ✗</div>
 
-<h3>Number of questions:</h3>
-<input type="number" id="numQuestions" min="1" max="50" value="5">
+<!-- VISUAL CONTROL PANEL -->
+<div class="controls">
 
-<br><br>
-<button onclick="generateQuestions()">Generate Questions</button>
+    <!-- Allow negatives -->
+    <div class="control-row">
+        <div class="icon-toggle" id="negToggle">➕/➖</div>
+    </div>
+
+    <!-- Max value -->
+    <div class="control-row">
+        <div class="slider-label">🎚️</div>
+        <input type="range" id="maxValue" min="5" max="200" value="50" 
+               oninput="maxVal.textContent=this.value">
+        <span id="maxVal" style="font-size:32px;">50</span>
+    </div>
+
+    <!-- Number of questions -->
+    <div class="control-row">
+        <div class="slider-label">❓</div>
+        <input type="number" id="numQuestions" class="number-box" min="1" max="50" value="5">
+    </div>
+
+    <!-- Generate button -->
+    <div id="generateBtn" onclick="generateQuestions()">🔄</div>
 </div>
 
 <div id="questions"></div>
 
-<br>
-<button id="finishBtn" onclick="finishQuiz()">Finish</button>
-<button id="printBtn" onclick="window.print()">Print Version</button>
-
-<div id="summary" class="summary"></div>
+<div id="printBtn" onclick="window.print()">🖨️</div>
 
 <script>
+/* Visual toggle logic */
+function toggle(btn) {
+    btn.classList.toggle("selected");
+}
+
+document.getElementById("negToggle").onclick = () => toggle(negToggle);
+
+let correctCount = 0;
+let wrongCount = 0;
+
+function updateScore() {
+    scoreBar.textContent = `Correct: ${correctCount} ✓ | Wrong: ${wrongCount} ✗`;
+}
+
 function generateQuestions() {
+    correctCount = 0;
+    wrongCount = 0;
+    updateScore();
+
+    const allowNegatives = negToggle.classList.contains("selected");
     const maxVal = parseInt(maxValue.value);
     const count = parseInt(numQuestions.value);
-    const allowNegatives = allowNeg.checked;
 
     const container = document.getElementById("questions");
     container.innerHTML = "";
@@ -104,7 +241,11 @@ function generateQuestions() {
         div.className = "question";
 
         div.innerHTML = `
-            <div>${a} <span style="border:2px solid black; padding: 0 20px;">&nbsp;</span> ${b}</div>
+            <div>
+                ${a}
+                <span class="symbol-box" id="symbol${i}">?</span>
+                ${b}
+            </div>
 
             <div class="choice-group">
                 <label><input type="radio" name="q${i}" value=">"> ></label>
@@ -115,35 +256,38 @@ function generateQuestions() {
             <input type="hidden" data-answer="${correct}">
         `;
 
+        const radios = div.querySelectorAll("input[type=radio]");
+
+        radios.forEach(r => {
+            r.addEventListener("change", () => {
+                const user = r.value;
+                const right = div.querySelector("input[type=hidden]").dataset.answer;
+
+                // Update symbol box
+                const box = document.getElementById("symbol" + i);
+                box.textContent = user;
+
+                // Pop animation
+                box.classList.add("pop");
+                setTimeout(() => box.classList.remove("pop"), 150);
+
+                // Correct / wrong feedback
+                if (user === right) {
+                    if (!div.classList.contains("correct")) correctCount++;
+                    div.classList.add("correct");
+                    div.classList.remove("wrong");
+                } else {
+                    if (!div.classList.contains("wrong")) wrongCount++;
+                    div.classList.add("wrong");
+                    div.classList.remove("correct");
+                }
+
+                updateScore();
+            });
+        });
+
         container.appendChild(div);
     }
-}
-
-function finishQuiz() {
-    const questions = document.querySelectorAll(".question");
-    if (questions.length === 0) {
-        alert("No questions to check. Generate some first.");
-        return;
-    }
-
-    let correct = 0;
-    let summaryHTML = "<h3>Results:</h3>";
-
-    questions.forEach((q, i) => {
-        const right = q.querySelector("input[type=hidden]").dataset.answer;
-        const selected = q.querySelector("input[type=radio]:checked");
-        const user = selected ? selected.value : "(blank)";
-        const ok = selected && selected.value === right;
-
-        if (ok) correct++;
-
-        summaryHTML += `Q${i+1}: Your answer: ${user} | Correct: ${right} | ${ok ? "✔️" : "❌"}<br>`;
-    });
-
-    const score = Math.round((correct / questions.length) * 100);
-    summaryHTML += `<h3>Score: ${score}%</h3>`;
-
-    document.getElementById("summary").innerHTML = summaryHTML;
 }
 </script>
 

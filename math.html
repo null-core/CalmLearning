@@ -2,30 +2,133 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Random Math Quiz</title>
+<title>Math Quiz – Calm Learning</title>
+
 <style>
     body { 
-        font-family: Arial; 
-        margin: 20px; 
-        font-size: 26px; 
+        font-family: Arial, sans-serif; 
+        background: #f5f5f5;
+        padding: 40px;
+        text-align: center;
     }
-    input, button { 
-        font-size: 26px; 
-        padding: 6px; 
+
+    /* Home button */
+    #homeBtn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-size: 50px;
+        text-decoration: none;
+        cursor: pointer;
     }
-    .question { 
-        margin: 18px 0; 
+
+    h2 {
+        font-size: 40px;
+        margin-bottom: 20px;
     }
-    .summary { 
-        margin-top: 20px; 
-        padding: 10px; 
-        border: 1px solid #ccc; 
-        font-size: 26px;
+
+    /* Visual control panel */
+    .controls {
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-width: 700px;
+        margin: 0 auto 40px;
+        font-size: 24px;
+    }
+
+    .control-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        margin: 20px 0;
+    }
+
+    .icon-toggle {
+        font-size: 50px;
+        padding: 10px 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: 0.2s;
+        border: 3px solid #ccc;
+        background: #fff;
+    }
+
+    .icon-toggle.selected {
+        border-color: #4caf50;
+        background: #eaffea;
+        transform: scale(1.15);
+    }
+
+    .slider-label {
+        font-size: 40px;
+    }
+
+    .number-box {
+        font-size: 32px;
+        width: 100px;
+        padding: 6px;
+        border-radius: 10px;
+        border: 2px solid #ccc;
+        text-align: center;
+    }
+
+    /* Score bar */
+    #scoreBar {
+        font-size: 32px;
+        margin-bottom: 30px;
+    }
+
+    /* Question cards */
+    .question {
+        font-size: 32px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 15px;
+        max-width: 500px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transition: 0.2s;
+    }
+
+    input {
+        font-size: 32px;
+        width: 120px;
+        padding: 6px;
+        text-align: center;
+        border-radius: 10px;
+        border: 2px solid #ccc;
+        transition: 0.2s;
+    }
+
+    .correct {
+        background: #b6f7b0 !important;
+        border-color: green !important;
+    }
+
+    .wrong {
+        background: #ffb3b3 !important;
+        border-color: red !important;
+    }
+
+    /* Visual buttons */
+    #generateBtn, #printBtn {
+        font-size: 70px;
+        cursor: pointer;
+        margin-top: 20px;
+        display: inline-block;
+        transition: 0.2s;
+    }
+
+    #generateBtn:hover, #printBtn:hover {
+        transform: scale(1.15);
     }
 
     /* PRINT MODE */
     @media print {
-        #controls, #finishBtn, #printBtn {
+        #homeBtn, .controls, #scoreBar, #printBtn {
             display: none !important;
         }
         body {
@@ -35,63 +138,95 @@
         input {
             border: none;
             border-bottom: 2px solid black;
-            width: 120px;
-        }
-        .summary {
-            display: none;
+            width: 150px;
         }
     }
 </style>
 </head>
 <body>
 
-<div id="controls">
-<h2>Math Quiz Generator</h2>
+<a id="homeBtn" href="index.html">🏠</a>
 
-<h3>Choose operations:</h3>
-<label><input type="checkbox" id="add" checked> + </label>
-<label><input type="checkbox" id="sub" checked> − </label>
-<label><input type="checkbox" id="mul" checked> × </label>
-<label><input type="checkbox" id="div" checked> ÷ </label>
+<h2>Math Quiz</h2>
 
-<br><br>
-<label><input type="checkbox" id="allowNeg"> Allow negative results</label>
+<div id="scoreBar">Correct: 0 ✓ | Wrong: 0 ✗</div>
 
-<h3>Maximum allowed answer:</h3>
-<input type="range" id="maxAnswer" min="5" max="200" value="50" oninput="maxVal.textContent=this.value">
-<span id="maxVal">50</span>
+<!-- VISUAL CONTROL PANEL -->
+<div class="controls">
 
-<h3>Number of questions:</h3>
-<input type="number" id="numQuestions" min="1" max="50" value="5">
+    <!-- Operation toggles -->
+    <div class="control-row">
+        <div class="icon-toggle selected" id="opAdd">➕</div>
+        <div class="icon-toggle selected" id="opSub">➖</div>
+        <div class="icon-toggle selected" id="opMul">✖️</div>
+        <div class="icon-toggle selected" id="opDiv">➗</div>
+    </div>
 
-<br><br>
-<button onclick="generateQuestions()">Generate Questions</button>
+    <!-- Allow negatives -->
+    <div class="control-row">
+        <div class="icon-toggle" id="negToggle">➕/➖</div>
+    </div>
+
+    <!-- Max answer -->
+    <div class="control-row">
+        <div class="slider-label">🎚️</div>
+        <input type="range" id="maxAnswer" min="5" max="200" value="50" 
+               oninput="maxVal.textContent=this.value">
+        <span id="maxVal" style="font-size:32px;">50</span>
+    </div>
+
+    <!-- Number of questions -->
+    <div class="control-row">
+        <div class="slider-label">❓</div>
+        <input type="number" id="numQuestions" class="number-box" min="1" max="50" value="5">
+    </div>
+
+    <!-- Generate button -->
+    <div id="generateBtn" onclick="generateQuestions()">🔄</div>
 </div>
 
 <div id="questions"></div>
 
-<br>
-<button id="finishBtn" onclick="finishQuiz()">Finish</button>
-<button id="printBtn" onclick="window.print()">Print Version</button>
-
-<div id="summary" class="summary"></div>
+<div id="printBtn" onclick="window.print()">🖨️</div>
 
 <script>
+/* Visual toggle logic */
+function toggle(btn) {
+    btn.classList.toggle("selected");
+}
+
+opAdd.onclick = () => toggle(opAdd);
+opSub.onclick = () => toggle(opSub);
+opMul.onclick = () => toggle(opMul);
+opDiv.onclick = () => toggle(opDiv);
+negToggle.onclick = () => toggle(negToggle);
+
+let correctCount = 0;
+let wrongCount = 0;
+
+function updateScore() {
+    scoreBar.textContent = `Correct: ${correctCount} ✓ | Wrong: ${wrongCount} ✗`;
+}
+
 function generateQuestions() {
+    correctCount = 0;
+    wrongCount = 0;
+    updateScore();
+
     const ops = [];
-    if (add.checked) ops.push("+");
-    if (sub.checked) ops.push("-");
-    if (mul.checked) ops.push("*");
-    if (div.checked) ops.push("/");
+    if (opAdd.classList.contains("selected")) ops.push("+");
+    if (opSub.classList.contains("selected")) ops.push("-");
+    if (opMul.classList.contains("selected")) ops.push("*");
+    if (opDiv.classList.contains("selected")) ops.push("/");
 
     if (ops.length === 0) {
-        alert("Select at least one operation.");
+        alert("Choose at least one operation.");
         return;
     }
 
     const maxAns = parseInt(maxAnswer.value);
     const count = parseInt(numQuestions.value);
-    const allowNegatives = allowNeg.checked;
+    const allowNegatives = negToggle.classList.contains("selected");
 
     const container = document.getElementById("questions");
     container.innerHTML = "";
@@ -105,19 +240,9 @@ function generateQuestions() {
             op = ops[Math.floor(Math.random() * ops.length)];
 
             switch (op) {
-                case "+": 
-                    result = a + b; 
-                    break;
-
-                case "-": 
-                    result = a - b; 
-                    if (!allowNegatives && result < 0) continue;
-                    break;
-
-                case "*": 
-                    result = a * b; 
-                    break;
-
+                case "+": result = a + b; break;
+                case "-": result = a - b; if (!allowNegatives && result < 0) continue; break;
+                case "*": result = a * b; break;
                 case "/":
                     result = a / b;
                     if (!Number.isInteger(result)) continue;
@@ -134,45 +259,33 @@ function generateQuestions() {
             <span>${a} ${op} ${b} = </span>
             <input type="number" data-answer="${result}">
         `;
+
+        const input = div.querySelector("input");
+
+        input.addEventListener("input", () => {
+            const user = Number(input.value);
+            const right = Number(input.dataset.answer);
+
+            if (input.value === "") {
+                input.classList.remove("correct", "wrong");
+                return;
+            }
+
+            if (user === right) {
+                if (!input.classList.contains("correct")) correctCount++;
+                input.classList.add("correct");
+                input.classList.remove("wrong");
+            } else {
+                if (!input.classList.contains("wrong")) wrongCount++;
+                input.classList.add("wrong");
+                input.classList.remove("correct");
+            }
+
+            updateScore();
+        });
+
         container.appendChild(div);
     }
-}
-
-function finishQuiz() {
-    const inputs = document.querySelectorAll("#questions input");
-    if (inputs.length === 0) {
-        alert("No questions to check. Generate some first.");
-        return;
-    }
-
-    let correct = 0;
-    let summaryHTML = "<h3>Results:</h3>";
-
-    inputs.forEach((inp, i) => {
-        const raw = inp.value.trim();
-        const right = Number(inp.dataset.answer);
-
-        let displayUser;
-        let ok = false;
-
-        if (raw === "") {
-            displayUser = "(blank)";
-        } else {
-            const user = Number(raw);
-            displayUser = raw;
-            if (!Number.isNaN(user) && user === right) {
-                ok = true;
-                correct++;
-            }
-        }
-
-        summaryHTML += `Q${i+1}: Your answer: ${displayUser} | Correct: ${right} | ${ok ? "✔️" : "❌"}<br>`;
-    });
-
-    const score = Math.round((correct / inputs.length) * 100);
-    summaryHTML += `<h3>Score: ${score}%</h3>`;
-
-    document.getElementById("summary").innerHTML = summaryHTML;
 }
 </script>
 

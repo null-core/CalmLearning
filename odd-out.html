@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Odd One Out – Calm Learning</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 40px;
+        background: #f5f5f5;
+    }
+
+    h1 {
+        font-size: 38px;
+        margin-bottom: 20px;
+    }
+
+    #puzzle {
+        font-size: 80px;
+        margin: 40px 0;
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+
+    .option {
+        background: white;
+        padding: 25px 35px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: pointer;
+        transition: 0.2s;
+        user-select: none;
+    }
+
+    .option:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+
+    .correct {
+        background: #b6f7b0 !important;
+    }
+
+    .wrong {
+        background: #ffb3b3 !important;
+    }
+
+    #nextBtn {
+        margin-top: 40px;
+        padding: 15px 40px;
+        font-size: 26px;
+        border: none;
+        border-radius: 12px;
+        background: #4a90e2;
+        color: white;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    #nextBtn:hover {
+        background: #3576c8;
+    }
+</style>
+</head>
+<body>
+
+<h1>Odd One Out</h1>
+
+<div id="puzzle"></div>
+
+<button id="nextBtn" onclick="newPuzzle()">Next</button>
+
+<script>
+// 10 categories
+const categories = {
+    animals: ["🐶", "🐱", "🐭", "🐰", "🐻", "🦊", "🐼"],
+    fruits: ["🍎", "🍌", "🍐", "🍇", "🍓", "🍉", "🍒"],
+    shapes: ["⬛", "🔺", "⚪", "⬜", "🔵", "🟩", "🟧"],
+    vehicles: ["🚗", "🚌", "🚓", "🚑", "🚒", "🚕", "🚜"],
+    weather: ["☀️", "🌧️", "⛄", "🌪️", "🌈", "🌤️", "🌙"],
+    emotions: ["😀", "😢", "😡", "😴", "😮", "😃", "🤔"],
+    food: ["🍕", "🍔", "🍟", "🌭", "🥪", "🥗", "🍿"],
+    nature: ["🌲", "🌳", "🌴", "🌵", "🍁", "🍂", "🌾"],
+    sports: ["⚽", "🏀", "🎾", "🏈", "⚾", "🏐", "🥏"],
+    sea: ["🐟", "🐠", "🐬", "🐳", "🦀", "🐙", "🦈"]
+};
+
+let correctAnswer = null;
+
+// Fisher-Yates shuffle
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function newPuzzle() {
+    const puzzleDiv = document.getElementById("puzzle");
+    puzzleDiv.innerHTML = "";
+
+    const categoryNames = Object.keys(categories);
+
+    // Pick main category
+    const mainCategory = categoryNames[Math.floor(Math.random() * categoryNames.length)];
+
+    // Pick odd category
+    let oddCategory;
+    do {
+        oddCategory = categoryNames[Math.floor(Math.random() * categoryNames.length)];
+    } while (oddCategory === mainCategory);
+
+    // Pick 3 normal items
+    const normalItems = categories[mainCategory];
+    const normal = [];
+    while (normal.length < 3) {
+        const item = normalItems[Math.floor(Math.random() * normalItems.length)];
+        if (!normal.includes(item)) normal.push(item);
+    }
+
+    // Pick odd item
+    const oddItems = categories[oddCategory];
+    const oddOne = oddItems[Math.floor(Math.random() * oddItems.length)];
+
+    correctAnswer = oddOne;
+
+    // Combine and shuffle
+    const options = [...normal, oddOne];
+    shuffle(options);
+
+    // Display options
+    options.forEach(symbol => {
+        const div = document.createElement("div");
+        div.className = "option";
+        div.textContent = symbol;
+
+        div.onclick = () => {
+            if (symbol === correctAnswer) {
+                div.classList.add("correct");
+            } else {
+                div.classList.add("wrong");
+            }
+        };
+
+        puzzleDiv.appendChild(div);
+    });
+}
+
+// Start first puzzle
+newPuzzle();
+</script>
+
+</body>
+</html>

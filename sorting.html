@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sorting Logic – Calm Learning</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 40px;
+        background: #f5f5f5;
+        position: relative;
+    }
+
+    /* Home button */
+    #homeBtn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-size: 50px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    h1 {
+        font-size: 38px;
+        margin-bottom: 20px;
+    }
+
+    #itemToSort {
+        font-size: 100px;
+        margin: 30px 0;
+    }
+
+    #baskets {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .basket {
+        background: white;
+        padding: 25px 35px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: pointer;
+        transition: 0.2s;
+        font-size: 70px;
+        user-select: none;
+    }
+
+    .basket:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+
+    .correct {
+        background: #b6f7b0 !important;
+    }
+
+    .wrong {
+        background: #ffb3b3 !important;
+    }
+
+    /* Bottom feedback bar */
+    #feedback {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 120px;      /* bigger */
+        opacity: 0;
+        transition: opacity 0.3s ease;
+}
+
+    }
+</style>
+</head>
+<body>
+
+<a id="homeBtn" href="index.html">🏠</a>
+
+<h1>Sorting Logic</h1>
+
+<div id="itemToSort"></div>
+<div id="baskets"></div>
+
+<div id="feedback"></div>
+
+<script>
+// 10 categories
+const categories = {
+    animals: ["🐶", "🐱", "🐭", "🐰", "🐻", "🦊", "🐼"],
+    fruits: ["🍎", "🍌", "🍐", "🍇", "🍓", "🍉", "🍒"],
+    shapes: ["⬛", "🔺", "⚪", "⬜", "🔵", "🟩", "🟧"],
+    vehicles: ["🚗", "🚌", "🚓", "🚑", "🚒", "🚕", "🚜"],
+    weather: ["☀️", "🌧️", "⛄", "🌪️", "🌈", "🌤️", "🌙"],
+    emotions: ["😀", "😢", "😡", "😴", "😮", "😃", "🤔"],
+    food: ["🍕", "🍔", "🍟", "🌭", "🥪", "🥗", "🍿"],
+    nature: ["🌲", "🌳", "🌴", "🌵", "🍁", "🍂", "🌾"],
+    sports: ["⚽", "🏀", "🎾", "🏈", "⚾", "🏐", "🥏"],
+    sea: ["🐟", "🐠", "🐬", "🐳", "🦀", "🐙", "🦈"]
+};
+
+let correctCategory = null;
+
+// Shuffle helper
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function showFeedback(symbol) {
+    const fb = document.getElementById("feedback");
+
+    if (symbol === "✓") {
+        fb.style.color = "green";
+    } else {
+        fb.style.color = "red";
+    }
+
+    fb.textContent = symbol;
+    fb.style.opacity = 1;
+
+    setTimeout(() => {
+        fb.style.opacity = 0;
+    }, 600);
+}
+
+
+function newRound() {
+    const itemDiv = document.getElementById("itemToSort");
+    const basketsDiv = document.getElementById("baskets");
+    basketsDiv.innerHTML = "";
+
+    const categoryNames = Object.keys(categories);
+
+    // Pick 3 different categories
+    shuffle(categoryNames);
+    const chosenCategories = categoryNames.slice(0, 3);
+
+    // Pick one category to be the correct one
+    correctCategory = chosenCategories[Math.floor(Math.random() * 3)];
+
+    // Pick an item from the correct category
+    const items = categories[correctCategory];
+    const item = items[Math.floor(Math.random() * items.length)];
+
+    itemDiv.textContent = item;
+
+    // Create baskets
+    chosenCategories.forEach(cat => {
+        const basket = document.createElement("div");
+        basket.className = "basket";
+
+        // Use the first emoji of the category as its label
+        basket.textContent = categories[cat][0];
+
+        basket.onclick = () => {
+            if (cat === correctCategory) {
+                basket.classList.add("correct");
+                showFeedback("✓");
+            } else {
+                basket.classList.add("wrong");
+                showFeedback("✗");
+            }
+
+            // Auto-load next round after short delay
+            setTimeout(newRound, 800);
+        };
+
+        basketsDiv.appendChild(basket);
+    });
+}
+
+// Start first round
+newRound();
+</script>
+
+</body>
+</html>
