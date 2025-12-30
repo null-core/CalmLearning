@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>True/False Math Quiz</title>
+<style>
+    body { 
+        font-family: Arial; 
+        margin: 20px; 
+        font-size: 26px; 
+    }
+    input, button { 
+        font-size: 26px; 
+        padding: 6px; 
+    }
+    .question { 
+        margin: 18px 0; 
+        padding-bottom: 15px;
+        border-bottom: 2px solid #ccc;
+    }
+    .summary { 
+        margin-top: 20px; 
+        padding: 10px; 
+        border: 1px solid #ccc; 
+        font-size: 26px;
+    }
+
+    .tf-buttons {
+        margin-top: 10px;
+        display: flex;
+        gap: 40px;
+    }
+
+    .true-btn, .false-btn {
+        font-size: 32px;
+        padding: 10px 25px;
+        border: none;
+        cursor: pointer;
+        border-radius: 8px;
+        color: white;
+        transition: 0.2s;
+    }
+
+    .true-btn {
+        background-color: green;
+    }
+
+    .false-btn {
+        background-color: red;
+    }
+
+    .selected-true {
+        box-shadow: 0 0 10px 3px rgba(0, 255, 0, 0.7);
+        transform: scale(1.1);
+    }
+
+    .selected-false {
+        box-shadow: 0 0 10px 3px rgba(255, 0, 0, 0.7);
+        transform: scale(1.1);
+    }
+
+    /* PRINT MODE */
+    @media print {
+        #controls, #finishBtn, #printBtn {
+            display: none !important;
+        }
+        body {
+            margin: 40px;
+            font-size: 28px;
+        }
+        .summary {
+            display: none;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div id="controls">
+<h2>True / False Math Quiz</h2>
+
+<h3>Choose operations:</h3>
+<label><input type="checkbox" id="add" checked> + </label>
+<label><input type="checkbox" id="sub" checked> − </label>
+<label><input type="checkbox" id="mul" checked> × </label>
+<label><input type="checkbox" id="div" checked> ÷ </label>
+
+<br><br>
+<label><input type="checkbox" id="allowNeg"> Allow negative results</label>
+
+<h3>Maximum allowed answer:</h3>
+<input type="range" id="maxAnswer" min="5" max="200" value="50" oninput="maxVal.textContent=this.value">
+<span id="maxVal">50</span>
+
+<h3>Number of questions:</h3>
+<input type="number" id="numQuestions" min="1" max="50" value="5">
+
+<br><br>
+<button onclick="generateQuestions()">Generate Questions</button>
+</div>
+
+<div id="questions"></div>
+
+<br>
+<button id="finishBtn" onclick="finishQuiz()">Finish</button>
+<button id="printBtn" onclick="window.print()">Print Version</button>
+
+<div id="summary" class="summary"></div>
+
+<script>
+function generateQuestions() {
+    const ops = [];
+    if (add.checked) ops.push("+");
+    if (sub.checked) ops.push("-");
+    if (mul.checked) ops.push("*");
+    if (div.checked) ops.push("/");
+
+    if (ops.length === 0) {
+        alert("Select at least one operation.");
+        return;
+    }
+
+    const maxAns = parseInt(maxAnswer.value);
+    const count = parseInt(numQuestions.value);
+    const allowNegatives = allowNeg.checked;
+
+    const container = document.getElementById("questions");
+    container.innerHTML = "";
+
+    for (let i = 0; i < count; i++) {
+        let a, b, op, correctResult, statement, isTrue;
+
+        // Generate operands
+        a = allowNegatives
+            ? Math.floor(Math.random() * (maxAns * 2 + 1)) - maxAns
+            : Math.floor(Math.random() * maxAns) + 1;
+
+        b = allowNegatives
+            ? Math.floor(Math.random() * (maxAns * 2 + 1)) - maxAns
+            : Math.floor(Math.random() * maxAns) + 1;
+
+        // Pick arithmetic or comparison
+        const isArithmetic = Math.random() < 0.5;
+
+        if (isArithmetic) {
+            op = ops[Math.floor(Math.random() * ops.length)];
+
+            switch (op) {
+                case "+":
+                    correctResult = a + b;
+                    break;
+
+                case "-":
+                    correctResult = a - b;
+                    break;
+
+                case "*":
+                    correctResult = a * b;
+                    break;
+
+                case "/":
+                    // Always integer division
+                    b = Math.floor(Math.random() * maxAns) + 1; // divisor
+                    const intResult = Math.floor(Math.random() * maxAns) + 1; // integer result
+                    a = b * intResult; // dividend
+                    correctResult = intResult;
+                    break;
+            }
+
+            // Decide if statement is true or false
+            isTrue = Math.random() < 0.5;
+
+            let shownResult = correctResult;
+
+            if (!isTrue) {
+                // Option C: sometimes close, sometimes far
+                if (Math.random() < 0.5) {
+                    shownResult += Math.floor(Math.random() * 3) + 1; // close wrong
+                } else {
+                    shownResult += Math.floor(Math.random() * 20) + 5; // far wrong
+                }
+            }
+
+            statement = `${a} ${op} ${b} = ${shownResult}`;
+
+        } else {
+            // Comparison statement
+            const comparisons = [">", "<", "="];
+            op = comparisons[Math.floor(Math.random() * comparisons.length)];
+
+            const real =
+                a > b ? ">" :
+                a < b ? "<" :
+                "=";
+
+            isTrue = Math.random() < 0.5;
+
+            let shownOp = real;
+
+            if (!isTrue) {
+                const wrongOps = comparisons.filter(x => x !== real);
+                shownOp = wrongOps[Math.floor(Math.random() * wrongOps.length)];
+            }
+
+            statement = `${a} ${shownOp} ${b}`;
+        }
+
+        const div = document.createElement("div");
+        div.className = "question";
+
+        div.innerHTML = `
+            <div>${statement}</div>
+
+            <div class="tf-buttons">
+                <button id="trueBtn${i}" class="true-btn" onclick="selectTF(${i}, true)">V</button>
+                <button id="falseBtn${i}" class="false-btn" onclick="selectTF(${i}, false)">X</button>
+            </div>
+
+            <input type="hidden" id="answer${i}" data-correct="${isTrue}">
+            <input type="hidden" id="user${i}" value="">
+        `;
+
+        container.appendChild(div);
+    }
+}
+
+function selectTF(index, value) {
+    document.getElementById(`user${index}`).value = value;
+
+    const trueBtn = document.getElementById(`trueBtn${index}`);
+    const falseBtn = document.getElementById(`falseBtn${index}`);
+
+    trueBtn.classList.remove("selected-true");
+    falseBtn.classList.remove("selected-false");
+
+    if (value === true) {
+        trueBtn.classList.add("selected-true");
+    } else {
+        falseBtn.classList.add("selected-false");
+    }
+}
+
+function finishQuiz() {
+    const questions = document.querySelectorAll(".question");
+    if (questions.length === 0) {
+        alert("No questions to check. Generate some first.");
+        return;
+    }
+
+    let correct = 0;
+    let summaryHTML = "<h3>Results:</h3>";
+
+    questions.forEach((q, i) => {
+        const right = document.getElementById(`answer${i}`).dataset.correct === "true";
+        const userVal = document.getElementById(`user${i}`).value;
+
+        let userDisplay = userVal === "" ? "(blank)" : (userVal === "true" ? "True" : "False");
+        let ok = (userVal !== "" && (userVal === "true") === right);
+
+        if (ok) correct++;
+
+        summaryHTML += `Q${i+1}: Your answer: ${userDisplay} | Correct: ${right ? "True" : "False"} | ${ok ? "✔️" : "❌"}<br>`;
+    });
+
+    const score = Math.round((correct / questions.length) * 100);
+    summaryHTML += `<h3>Score: ${score}%</h3>`;
+
+    document.getElementById("summary").innerHTML = summaryHTML;
+}
+</script>
+
+</body>
+</html>

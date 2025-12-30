@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Comparison Quiz</title>
+<style>
+    body { 
+        font-family: Arial; 
+        margin: 20px; 
+        font-size: 26px; 
+    }
+    input, button { 
+        font-size: 26px; 
+        padding: 6px; 
+    }
+    .question { 
+        margin: 18px 0; 
+        padding-bottom: 15px;
+        border-bottom: 2px solid #ccc;
+    }
+    .summary { 
+        margin-top: 20px; 
+        padding: 10px; 
+        border: 1px solid #ccc; 
+        font-size: 26px;
+    }
+    .choice-group {
+        display: flex;
+        gap: 40px;
+        margin-top: 10px;
+    }
+    .choice-group label {
+        cursor: pointer;
+    }
+
+    /* PRINT MODE */
+    @media print {
+        #controls, #finishBtn, #printBtn {
+            display: none !important;
+        }
+        body {
+            margin: 40px;
+            font-size: 28px;
+        }
+        .summary {
+            display: none;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div id="controls">
+<h2>Comparison Quiz Generator</h2>
+
+<h3>Allow negative numbers?</h3>
+<label><input type="checkbox" id="allowNeg"> Yes</label>
+
+<h3>Maximum number value:</h3>
+<input type="range" id="maxValue" min="5" max="200" value="50" oninput="maxVal.textContent=this.value">
+<span id="maxVal">50</span>
+
+<h3>Number of questions:</h3>
+<input type="number" id="numQuestions" min="1" max="50" value="5">
+
+<br><br>
+<button onclick="generateQuestions()">Generate Questions</button>
+</div>
+
+<div id="questions"></div>
+
+<br>
+<button id="finishBtn" onclick="finishQuiz()">Finish</button>
+<button id="printBtn" onclick="window.print()">Print Version</button>
+
+<div id="summary" class="summary"></div>
+
+<script>
+function generateQuestions() {
+    const maxVal = parseInt(maxValue.value);
+    const count = parseInt(numQuestions.value);
+    const allowNegatives = allowNeg.checked;
+
+    const container = document.getElementById("questions");
+    container.innerHTML = "";
+
+    for (let i = 0; i < count; i++) {
+        let a, b;
+
+        if (allowNegatives) {
+            a = Math.floor(Math.random() * (maxVal * 2 + 1)) - maxVal;
+            b = Math.floor(Math.random() * (maxVal * 2 + 1)) - maxVal;
+        } else {
+            a = Math.floor(Math.random() * maxVal) + 1;
+            b = Math.floor(Math.random() * maxVal) + 1;
+        }
+
+        const correct =
+            a > b ? ">" :
+            a < b ? "<" :
+            "=";
+
+        const div = document.createElement("div");
+        div.className = "question";
+
+        div.innerHTML = `
+            <div>${a} <span style="border:2px solid black; padding: 0 20px;">&nbsp;</span> ${b}</div>
+
+            <div class="choice-group">
+                <label><input type="radio" name="q${i}" value=">"> ></label>
+                <label><input type="radio" name="q${i}" value="<"> <</label>
+                <label><input type="radio" name="q${i}" value="="> =</label>
+            </div>
+
+            <input type="hidden" data-answer="${correct}">
+        `;
+
+        container.appendChild(div);
+    }
+}
+
+function finishQuiz() {
+    const questions = document.querySelectorAll(".question");
+    if (questions.length === 0) {
+        alert("No questions to check. Generate some first.");
+        return;
+    }
+
+    let correct = 0;
+    let summaryHTML = "<h3>Results:</h3>";
+
+    questions.forEach((q, i) => {
+        const right = q.querySelector("input[type=hidden]").dataset.answer;
+        const selected = q.querySelector("input[type=radio]:checked");
+        const user = selected ? selected.value : "(blank)";
+        const ok = selected && selected.value === right;
+
+        if (ok) correct++;
+
+        summaryHTML += `Q${i+1}: Your answer: ${user} | Correct: ${right} | ${ok ? "✔️" : "❌"}<br>`;
+    });
+
+    const score = Math.round((correct / questions.length) * 100);
+    summaryHTML += `<h3>Score: ${score}%</h3>`;
+
+    document.getElementById("summary").innerHTML = summaryHTML;
+}
+</script>
+
+</body>
+</html>

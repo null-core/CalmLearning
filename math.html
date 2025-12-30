@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Random Math Quiz</title>
+<style>
+    body { 
+        font-family: Arial; 
+        margin: 20px; 
+        font-size: 26px; 
+    }
+    input, button { 
+        font-size: 26px; 
+        padding: 6px; 
+    }
+    .question { 
+        margin: 18px 0; 
+    }
+    .summary { 
+        margin-top: 20px; 
+        padding: 10px; 
+        border: 1px solid #ccc; 
+        font-size: 26px;
+    }
+
+    /* PRINT MODE */
+    @media print {
+        #controls, #finishBtn, #printBtn {
+            display: none !important;
+        }
+        body {
+            margin: 40px;
+            font-size: 28px;
+        }
+        input {
+            border: none;
+            border-bottom: 2px solid black;
+            width: 120px;
+        }
+        .summary {
+            display: none;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div id="controls">
+<h2>Math Quiz Generator</h2>
+
+<h3>Choose operations:</h3>
+<label><input type="checkbox" id="add" checked> + </label>
+<label><input type="checkbox" id="sub" checked> − </label>
+<label><input type="checkbox" id="mul" checked> × </label>
+<label><input type="checkbox" id="div" checked> ÷ </label>
+
+<br><br>
+<label><input type="checkbox" id="allowNeg"> Allow negative results</label>
+
+<h3>Maximum allowed answer:</h3>
+<input type="range" id="maxAnswer" min="5" max="200" value="50" oninput="maxVal.textContent=this.value">
+<span id="maxVal">50</span>
+
+<h3>Number of questions:</h3>
+<input type="number" id="numQuestions" min="1" max="50" value="5">
+
+<br><br>
+<button onclick="generateQuestions()">Generate Questions</button>
+</div>
+
+<div id="questions"></div>
+
+<br>
+<button id="finishBtn" onclick="finishQuiz()">Finish</button>
+<button id="printBtn" onclick="window.print()">Print Version</button>
+
+<div id="summary" class="summary"></div>
+
+<script>
+function generateQuestions() {
+    const ops = [];
+    if (add.checked) ops.push("+");
+    if (sub.checked) ops.push("-");
+    if (mul.checked) ops.push("*");
+    if (div.checked) ops.push("/");
+
+    if (ops.length === 0) {
+        alert("Select at least one operation.");
+        return;
+    }
+
+    const maxAns = parseInt(maxAnswer.value);
+    const count = parseInt(numQuestions.value);
+    const allowNegatives = allowNeg.checked;
+
+    const container = document.getElementById("questions");
+    container.innerHTML = "";
+
+    for (let i = 0; i < count; i++) {
+        let a, b, op, result;
+
+        while (true) {
+            a = Math.floor(Math.random() * maxAns) + 1;
+            b = Math.floor(Math.random() * maxAns) + 1;
+            op = ops[Math.floor(Math.random() * ops.length)];
+
+            switch (op) {
+                case "+": 
+                    result = a + b; 
+                    break;
+
+                case "-": 
+                    result = a - b; 
+                    if (!allowNegatives && result < 0) continue;
+                    break;
+
+                case "*": 
+                    result = a * b; 
+                    break;
+
+                case "/":
+                    result = a / b;
+                    if (!Number.isInteger(result)) continue;
+                    if (!allowNegatives && result < 0) continue;
+                    break;
+            }
+
+            if (Math.abs(result) <= maxAns) break;
+        }
+
+        const div = document.createElement("div");
+        div.className = "question";
+        div.innerHTML = `
+            <span>${a} ${op} ${b} = </span>
+            <input type="number" data-answer="${result}">
+        `;
+        container.appendChild(div);
+    }
+}
+
+function finishQuiz() {
+    const inputs = document.querySelectorAll("#questions input");
+    if (inputs.length === 0) {
+        alert("No questions to check. Generate some first.");
+        return;
+    }
+
+    let correct = 0;
+    let summaryHTML = "<h3>Results:</h3>";
+
+    inputs.forEach((inp, i) => {
+        const raw = inp.value.trim();
+        const right = Number(inp.dataset.answer);
+
+        let displayUser;
+        let ok = false;
+
+        if (raw === "") {
+            displayUser = "(blank)";
+        } else {
+            const user = Number(raw);
+            displayUser = raw;
+            if (!Number.isNaN(user) && user === right) {
+                ok = true;
+                correct++;
+            }
+        }
+
+        summaryHTML += `Q${i+1}: Your answer: ${displayUser} | Correct: ${right} | ${ok ? "✔️" : "❌"}<br>`;
+    });
+
+    const score = Math.round((correct / inputs.length) * 100);
+    summaryHTML += `<h3>Score: ${score}%</h3>`;
+
+    document.getElementById("summary").innerHTML = summaryHTML;
+}
+</script>
+
+</body>
+</html>
