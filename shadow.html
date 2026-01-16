@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pop the Balloon – Calm Learning</title>
+<title>Shadow Match – Calm Learning</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -12,7 +12,6 @@
         position: relative;
     }
 
-    /* Home button */
     #homeBtn {
         position: absolute;
         top: 20px;
@@ -32,46 +31,34 @@
         margin-bottom: 20px;
     }
 
-    #balloonArea {
+    #shadow { 
+        font-size: 120px; 
+        margin: 20px 0 40px 0; 
+        filter: brightness(0); 
+        opacity: 0.9; 
+    }
+
+    #options {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
         gap: 30px;
-        margin-top: 40px;
     }
 
-    .balloon {
-        font-size: 80px;
+    .option {
         background: white;
-        padding: 20px 30px;
-        border-radius: 25px;
+        padding: 25px 35px;
+        border-radius: 20px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         cursor: pointer;
         transition: 0.25s ease;
         user-select: none;
-        position: relative;
+        font-size: 80px;
     }
 
-    .balloon:hover {
+    .option:hover {
         transform: scale(1.1);
         box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-    }
-
-    .numberTag {
-        position: absolute;
-        bottom: -10px;
-        right: -10px;
-        background: #ffffff;
-        border-radius: 50%;
-        padding: 5px 12px;
-        font-size: 28px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-
-    /* Pop animation */
-    .pop {
-        transform: scale(0);
-        opacity: 0;
     }
 
     .correct {
@@ -82,7 +69,6 @@
         background: #ffb3b3 !important;
     }
 
-    /* Bottom feedback */
     #feedback {
         position: fixed;
         bottom: 20px;
@@ -98,21 +84,26 @@
 
 <a id="homeBtn" href="index.html">🏠</a>
 
-<h1>Pop the Balloon</h1>
+<h1>Shadow Match</h1>
 
 <div id="scoreBar">Correct: 0 ✓ | Wrong: 0 ✗</div>
 
-<div id="balloonArea"></div>
+<div id="shadow"></div>
+
+<div id="options"></div>
 
 <div id="feedback"></div>
 
 <script>
-let correctNumber = 0;
 let correctCount = 0;
 let wrongCount = 0;
 
-// Balloon colors
-const balloonColors = ["🎈","🎉","🎊","🟠","🔵","🟣","🔴","🟡"];
+const objects = [
+    "🐱","🐶","🐰","🐻","🐸","🐟","🐢","🐤",
+    "🚗","✈️","🚲","🚀",
+    "🍎","🍌","🍇","🍉",
+    "⚽","🎈","🧸","🎁"
+];
 
 function updateScore() {
     document.getElementById("scoreBar").textContent =
@@ -124,60 +115,44 @@ function showFeedback(symbol) {
     fb.textContent = symbol;
     fb.style.color = symbol === "✓" ? "green" : "red";
     fb.style.opacity = 1;
-
-    setTimeout(() => {
-        fb.style.opacity = 0;
-    }, 600);
+    setTimeout(() => fb.style.opacity = 0, 600);
 }
 
 function newRound() {
-    const area = document.getElementById("balloonArea");
-    area.innerHTML = "";
+    const shadowDiv = document.getElementById("shadow");
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
 
-    // Choose target number 1–9
-    correctNumber = Math.floor(Math.random() * 9) + 1;
+    const correctObj = objects[Math.floor(Math.random() * objects.length)];
+    shadowDiv.textContent = correctObj;
 
-    // Create 6 balloons
-    let numbers = new Set([correctNumber]);
-    while (numbers.size < 6) {
-        numbers.add(Math.floor(Math.random() * 9) + 1);
+    let choices = new Set([correctObj]);
+    while (choices.size < 4) {
+        choices.add(objects[Math.floor(Math.random() * objects.length)]);
     }
 
-    let shuffled = Array.from(numbers).sort(() => Math.random() - 0.5);
+    const shuffled = Array.from(choices).sort(() => Math.random() - 0.5);
 
-    shuffled.forEach(num => {
-        const balloon = document.createElement("div");
-        balloon.className = "balloon";
+    shuffled.forEach(obj => {
+        const btn = document.createElement("div");
+        btn.className = "option";
+        btn.textContent = obj;
 
-        // Random balloon emoji
-        const face = balloonColors[Math.floor(Math.random() * balloonColors.length)];
-        balloon.textContent = face;
-
-        // Number tag
-        const tag = document.createElement("div");
-        tag.className = "numberTag";
-        tag.textContent = num;
-        balloon.appendChild(tag);
-
-        balloon.onclick = () => {
-            if (num === correctNumber) {
+        btn.onclick = () => {
+            if (obj === correctObj) {
                 correctCount++;
-                balloon.classList.add("correct");
-                balloon.classList.add("pop");
+                btn.classList.add("correct");
                 showFeedback("✓");
             } else {
                 wrongCount++;
-                balloon.classList.add("wrong");
-                balloon.classList.add("pop");
+                btn.classList.add("wrong");
                 showFeedback("✗");
             }
-
             updateScore();
-
             setTimeout(newRound, 700);
         };
 
-        area.appendChild(balloon);
+        optionsDiv.appendChild(btn);
     });
 }
 
