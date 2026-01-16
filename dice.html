@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Count the Dice – Calm Learning</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 40px;
+        background: #f5f5f5;
+        position: relative;
+    }
+
+    /* Home button */
+    #homeBtn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-size: 50px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    h1 {
+        font-size: 38px;
+        margin-bottom: 20px;
+    }
+
+    #diceArea {
+        font-size: 120px;
+        margin: 40px 0;
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+    }
+
+    .die {
+        background: white;
+        padding: 25px 35px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        user-select: none;
+    }
+
+    #options {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+
+    .option {
+        background: white;
+        padding: 25px 35px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: pointer;
+        transition: 0.2s;
+        font-size: 70px;
+        user-select: none;
+    }
+
+    .option:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+
+    .correct {
+        background: #b6f7b0 !important;
+    }
+
+    .wrong {
+        background: #ffb3b3 !important;
+    }
+
+    /* Bottom feedback */
+    #feedback {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 120px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+</style>
+</head>
+<body>
+
+<a id="homeBtn" href="index.html">🏠</a>
+
+<h1>Count the Dice</h1>
+
+<div id="diceArea">
+    <div class="die" id="die1">⚀</div>
+    <div class="die" id="die2">⚀</div>
+</div>
+
+<div id="options"></div>
+
+<div id="feedback"></div>
+
+<script>
+let correctAnswer = 0;
+
+// Nicer dice faces
+const diceFaces = ["⚀","⚁","⚂","⚃","⚄","⚅"];
+
+function rollDie() {
+    return Math.floor(Math.random() * 6) + 1;
+}
+
+function showFeedback(symbol) {
+    const fb = document.getElementById("feedback");
+    fb.textContent = symbol;
+    fb.style.color = symbol === "✓" ? "green" : "red";
+    fb.style.opacity = 1;
+
+    setTimeout(() => {
+        fb.style.opacity = 0;
+    }, 600);
+}
+
+function newRound() {
+    const die1 = document.getElementById("die1");
+    const die2 = document.getElementById("die2");
+    const optionsDiv = document.getElementById("options");
+
+    optionsDiv.innerHTML = "";
+
+    // Roll dice but ensure sum ≤ 10
+    let a, b;
+    do {
+        a = rollDie();
+        b = rollDie();
+    } while (a + b > 10);
+
+    correctAnswer = a + b;
+
+    die1.textContent = diceFaces[a - 1];
+    die2.textContent = diceFaces[b - 1];
+
+    // Build answer options
+    let answers = new Set([correctAnswer]);
+    while (answers.size < 3) {
+        let wrong = Math.floor(Math.random() * 10) + 1;
+        if (wrong !== correctAnswer) answers.add(wrong);
+    }
+
+    let shuffled = Array.from(answers).sort(() => Math.random() - 0.5);
+
+    shuffled.forEach(num => {
+        const btn = document.createElement("div");
+        btn.className = "option";
+        btn.textContent = num;
+
+        btn.onclick = () => {
+            if (num === correctAnswer) {
+                btn.classList.add("correct");
+                showFeedback("✓");
+            } else {
+                btn.classList.add("wrong");
+                showFeedback("✗");
+            }
+
+            setTimeout(newRound, 800);
+        };
+
+        optionsDiv.appendChild(btn);
+    });
+}
+
+newRound();
+</script>
+
+</body>
+</html>

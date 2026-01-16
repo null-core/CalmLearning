@@ -9,6 +9,7 @@
         text-align: center;
         padding: 40px;
         background: #f5f5f5;
+        position: relative;
     }
 
     h1 {
@@ -33,6 +34,7 @@
         cursor: pointer;
         transition: 0.2s;
         user-select: none;
+        font-size: 70px;
     }
 
     .option:hover {
@@ -48,20 +50,15 @@
         background: #ffb3b3 !important;
     }
 
-    #nextBtn {
-        margin-top: 40px;
-        padding: 15px 40px;
-        font-size: 26px;
-        border: none;
-        border-radius: 12px;
-        background: #4a90e2;
-        color: white;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    #nextBtn:hover {
-        background: #3576c8;
+    /* Bottom feedback */
+    #feedback {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 120px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
 </style>
 </head>
@@ -71,7 +68,7 @@
 
 <div id="puzzle"></div>
 
-<button id="nextBtn" onclick="newPuzzle()">Next</button>
+<div id="feedback"></div>
 
 <script>
 // 10 categories
@@ -96,6 +93,17 @@ function shuffle(arr) {
         const j = Math.floor(Math.random() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
     }
+}
+
+function showFeedback(symbol) {
+    const fb = document.getElementById("feedback");
+    fb.textContent = symbol;
+    fb.style.color = symbol === "✓" ? "green" : "red";
+    fb.style.opacity = 1;
+
+    setTimeout(() => {
+        fb.style.opacity = 0;
+    }, 600);
 }
 
 function newPuzzle() {
@@ -140,9 +148,13 @@ function newPuzzle() {
         div.onclick = () => {
             if (symbol === correctAnswer) {
                 div.classList.add("correct");
+                showFeedback("✓");
             } else {
                 div.classList.add("wrong");
+                showFeedback("✗");
             }
+
+            setTimeout(newPuzzle, 800);
         };
 
         puzzleDiv.appendChild(div);

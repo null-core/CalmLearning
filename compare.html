@@ -54,6 +54,7 @@
         transition: 0.2s;
         border: 3px solid #ccc;
         background: #fff;
+        user-select: none;
     }
 
     .icon-toggle.selected {
@@ -172,12 +173,18 @@
         <div class="icon-toggle" id="negToggle">➕/➖</div>
     </div>
 
-    <!-- Max value -->
+    <!-- Max value with arrows -->
     <div class="control-row">
+
+        <div class="icon-toggle" id="decBtn">◀</div>
+
         <div class="slider-label">🎚️</div>
-        <input type="range" id="maxValue" min="5" max="200" value="50" 
-               oninput="maxVal.textContent=this.value">
-        <span id="maxVal" style="font-size:32px;">50</span>
+
+        <span id="maxVal" style="font-size:32px; min-width:60px; display:inline-block;">
+            50
+        </span>
+
+        <div class="icon-toggle" id="incBtn">▶</div>
     </div>
 
     <!-- Number of questions -->
@@ -209,13 +216,34 @@ function updateScore() {
     scoreBar.textContent = `Correct: ${correctCount} ✓ | Wrong: ${wrongCount} ✗`;
 }
 
+/* NEW MAX VALUE ARROW LOGIC */
+let maxValNumber = 50;
+
+function updateMaxValDisplay() {
+    document.getElementById("maxVal").textContent = maxValNumber;
+}
+
+document.getElementById("incBtn").onclick = () => {
+    if (maxValNumber < 100) {
+        maxValNumber += 10;
+        updateMaxValDisplay();
+    }
+};
+
+document.getElementById("decBtn").onclick = () => {
+    if (maxValNumber > 10) {
+        maxValNumber -= 10;
+        updateMaxValDisplay();
+    }
+};
+
 function generateQuestions() {
     correctCount = 0;
     wrongCount = 0;
     updateScore();
 
     const allowNegatives = negToggle.classList.contains("selected");
-    const maxVal = parseInt(maxValue.value);
+    const maxVal = maxValNumber;
     const count = parseInt(numQuestions.value);
 
     const container = document.getElementById("questions");
@@ -263,15 +291,12 @@ function generateQuestions() {
                 const user = r.value;
                 const right = div.querySelector("input[type=hidden]").dataset.answer;
 
-                // Update symbol box
                 const box = document.getElementById("symbol" + i);
                 box.textContent = user;
 
-                // Pop animation
                 box.classList.add("pop");
                 setTimeout(() => box.classList.remove("pop"), 150);
 
-                // Correct / wrong feedback
                 if (user === right) {
                     if (!div.classList.contains("correct")) correctCount++;
                     div.classList.add("correct");

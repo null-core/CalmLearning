@@ -54,6 +54,7 @@
         transition: 0.2s;
         border: 3px solid #ccc;
         background: #fff;
+        user-select: none;
     }
 
     .icon-toggle.selected {
@@ -167,12 +168,18 @@
         <div class="icon-toggle" id="negToggle">➕/➖</div>
     </div>
 
-    <!-- Max answer -->
+    <!-- Max answer with arrows -->
     <div class="control-row">
+
+        <div class="icon-toggle" id="decBtn">◀</div>
+
         <div class="slider-label">🎚️</div>
-        <input type="range" id="maxAnswer" min="5" max="200" value="50" 
-               oninput="maxVal.textContent=this.value">
-        <span id="maxVal" style="font-size:32px;">50</span>
+
+        <span id="maxVal" style="font-size:32px; min-width:60px; display:inline-block;">
+            50
+        </span>
+
+        <div class="icon-toggle" id="incBtn">▶</div>
     </div>
 
     <!-- Number of questions -->
@@ -208,6 +215,27 @@ function updateScore() {
     scoreBar.textContent = `Correct: ${correctCount} ✓ | Wrong: ${wrongCount} ✗`;
 }
 
+/* NEW MAX ANSWER ARROW LOGIC */
+let maxValNumber = 50;
+
+function updateMaxValDisplay() {
+    document.getElementById("maxVal").textContent = maxValNumber;
+}
+
+document.getElementById("incBtn").onclick = () => {
+    if (maxValNumber < 100) {
+        maxValNumber += 10;
+        updateMaxValDisplay();
+    }
+};
+
+document.getElementById("decBtn").onclick = () => {
+    if (maxValNumber > 10) {
+        maxValNumber -= 10;
+        updateMaxValDisplay();
+    }
+};
+
 function generateQuestions() {
     correctCount = 0;
     wrongCount = 0;
@@ -224,7 +252,7 @@ function generateQuestions() {
         return;
     }
 
-    const maxAns = parseInt(maxAnswer.value);
+    const maxAns = maxValNumber;
     const count = parseInt(numQuestions.value);
     const allowNegatives = negToggle.classList.contains("selected");
 

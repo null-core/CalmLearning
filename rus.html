@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Игра Буквы – Calm Learning</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 40px;
+        background: #f5f5f5;
+        position: relative;
+    }
+
+    h1 {
+        font-size: 50px;
+        margin-bottom: 20px;
+    }
+
+    #letter {
+        font-size: 140px;
+        margin: 20px 0 40px 0;
+        font-weight: bold;
+    }
+
+    #options {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .option {
+        background: white;
+        padding: 25px 35px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: pointer;
+        transition: 0.2s;
+        user-select: none;
+        font-size: 80px;
+    }
+
+    .option:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+
+    .correct {
+        background: #b6f7b0 !important;
+    }
+
+    .wrong {
+        background: #ffb3b3 !important;
+    }
+
+    #feedback {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 120px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+</style>
+</head>
+<body>
+
+<h1>Игра Буквы</h1>
+
+<div id="letter"></div>
+<div id="options"></div>
+
+<div id="feedback"></div>
+
+<script>
+const ABC = {
+    А: ["🍉","🦈","🚗"],
+    Б: ["🦋","🍌","🐿️"],
+    В: ["🐺","🍒","🚲"],
+    Г: ["🍄","🦍","🎸"],
+    Д: ["🐬","🏠","🎲"],
+    Е: ["🌲","🦄","🧀"],
+    Ё: ["🦔","🎄","🌲"],
+    Ж: ["🐞","🦒","🌼"],
+    З: ["🦓","🌞","🧩"],
+    И: ["🐡","🪁","🧵"],
+    К: ["🐱","🥝","🔑"],
+    Л: ["🦁","🍋","🌿"],
+    М: ["🐻","🐭","🌝"],
+    Н: ["🐦","🌙","🧃"],
+    О: ["🐙","🍏","🧅"],
+    П: ["🐧","🥞","🐶"],
+    Р: ["🌹","🐟","🤖"],
+    С: ["🌞","🐍","🍜"],
+    Т: ["🐅","🎺","🚜"],
+    У: ["🦆","🐌","🥒"],
+    Ф: ["🦩","🎆","🧀"],
+    Х: ["🐹","🌿","🧥"],
+    Ц: ["🐥","🍋","🌊"],
+    Ч: ["🍒","🫖","🐛"],
+    Ш: ["🧼","🧵","🐚"],
+    Щ: ["🧼","🧵","🦐"],
+    Я: ["🍎","🚤","🐍"]
+};
+
+const letters = Object.keys(ABC);
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function showFeedback(symbol) {
+    const fb = document.getElementById("feedback");
+    fb.textContent = symbol;
+    fb.style.color = symbol === "✓" ? "green" : "red";
+    fb.style.opacity = 1;
+    setTimeout(() => fb.style.opacity = 0, 600);
+}
+
+function newRound() {
+    const letterDiv = document.getElementById("letter");
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    const letter = letters[Math.floor(Math.random() * letters.length)];
+    const correctEmoji = ABC[letter][Math.floor(Math.random() * 3)];
+
+    letterDiv.textContent = letter;
+
+    const optionSet = [correctEmoji];
+
+    while (optionSet.length < 4) {
+        const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+        const randomEmoji = ABC[randomLetter][Math.floor(Math.random() * 3)];
+        if (!optionSet.includes(randomEmoji)) optionSet.push(randomEmoji);
+    }
+
+    shuffle(optionSet);
+
+    optionSet.forEach(sym => {
+        const btn = document.createElement("div");
+        btn.className = "option";
+        btn.textContent = sym;
+
+        btn.onclick = () => {
+            if (sym === correctEmoji) {
+                btn.classList.add("correct");
+                showFeedback("✓");
+            } else {
+                btn.classList.add("wrong");
+                showFeedback("✗");
+            }
+            setTimeout(newRound, 800);
+        };
+
+        optionsDiv.appendChild(btn);
+    });
+}
+
+newRound();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pop the Balloon – Calm Learning</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 40px;
+        background: #f5f5f5;
+        position: relative;
+    }
+
+    /* Home button */
+    #homeBtn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-size: 50px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    h1 {
+        font-size: 38px;
+        margin-bottom: 10px;
+    }
+
+    #scoreBar {
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+
+    #balloonArea {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 30px;
+        margin-top: 40px;
+    }
+
+    .balloon {
+        font-size: 80px;
+        background: white;
+        padding: 20px 30px;
+        border-radius: 25px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: pointer;
+        transition: 0.25s ease;
+        user-select: none;
+        position: relative;
+    }
+
+    .balloon:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+
+    .numberTag {
+        position: absolute;
+        bottom: -10px;
+        right: -10px;
+        background: #ffffff;
+        border-radius: 50%;
+        padding: 5px 12px;
+        font-size: 28px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    /* Pop animation */
+    .pop {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    .correct {
+        background: #b6f7b0 !important;
+    }
+
+    .wrong {
+        background: #ffb3b3 !important;
+    }
+
+    /* Bottom feedback */
+    #feedback {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 120px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+</style>
+</head>
+<body>
+
+<a id="homeBtn" href="index.html">🏠</a>
+
+<h1>Pop the Balloon</h1>
+
+<div id="scoreBar">Correct: 0 ✓ | Wrong: 0 ✗</div>
+
+<div id="balloonArea"></div>
+
+<div id="feedback"></div>
+
+<script>
+let correctNumber = 0;
+let correctCount = 0;
+let wrongCount = 0;
+
+// Balloon colors
+const balloonColors = ["🎈","🎉","🎊","🟠","🔵","🟣","🔴","🟡"];
+
+function updateScore() {
+    document.getElementById("scoreBar").textContent =
+        `Correct: ${correctCount} ✓ | Wrong: ${wrongCount} ✗`;
+}
+
+function showFeedback(symbol) {
+    const fb = document.getElementById("feedback");
+    fb.textContent = symbol;
+    fb.style.color = symbol === "✓" ? "green" : "red";
+    fb.style.opacity = 1;
+
+    setTimeout(() => {
+        fb.style.opacity = 0;
+    }, 600);
+}
+
+function newRound() {
+    const area = document.getElementById("balloonArea");
+    area.innerHTML = "";
+
+    // Choose target number 1–9
+    correctNumber = Math.floor(Math.random() * 9) + 1;
+
+    // Create 6 balloons
+    let numbers = new Set([correctNumber]);
+    while (numbers.size < 6) {
+        numbers.add(Math.floor(Math.random() * 9) + 1);
+    }
+
+    let shuffled = Array.from(numbers).sort(() => Math.random() - 0.5);
+
+    shuffled.forEach(num => {
+        const balloon = document.createElement("div");
+        balloon.className = "balloon";
+
+        // Random balloon emoji
+        const face = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+        balloon.textContent = face;
+
+        // Number tag
+        const tag = document.createElement("div");
+        tag.className = "numberTag";
+        tag.textContent = num;
+        balloon.appendChild(tag);
+
+        balloon.onclick = () => {
+            if (num === correctNumber) {
+                correctCount++;
+                balloon.classList.add("correct");
+                balloon.classList.add("pop");
+                showFeedback("✓");
+            } else {
+                wrongCount++;
+                balloon.classList.add("wrong");
+                balloon.classList.add("pop");
+                showFeedback("✗");
+            }
+
+            updateScore();
+
+            setTimeout(newRound, 700);
+        };
+
+        area.appendChild(balloon);
+    });
+}
+
+newRound();
+</script>
+
+</body>
+</html>
