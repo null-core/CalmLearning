@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shapes Combination – Calm Learning</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 40px;
+        background: #f5f5f5;
+        position: relative;
+    }
+
+    /* Home button */
+    #homeBtn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-size: 50px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    h1 {
+        font-size: 38px;
+        margin-bottom: 20px;
+    }
+
+    #prompt {
+        font-size: 90px;
+        margin: 40px 0;
+    }
+
+    #options {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+
+    .option {
+        background: white;
+        padding: 25px 35px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: pointer;
+        transition: 0.2s;
+        font-size: 90px;
+        user-select: none;
+    }
+
+    .option:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+
+    .correct {
+        background: #b6f7b0 !important;
+    }
+
+    .wrong {
+        background: #ffb3b3 !important;
+    }
+
+    /* Bottom feedback */
+    #feedback {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 120px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    #printBtn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 50px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+</style>
+</head>
+
+<body>
+
+<a id="homeBtn" href="index.html">🏠</a>
+<button id="printBtn" onclick="generatePrintable()">🖨️</button>
+
+<h1>Shapes Combination</h1>
+
+<div id="prompt"></div>
+<div id="options"></div>
+<div id="feedback"></div>
+
+<script>
+// ------------------------------
+// FEEDBACK
+// ------------------------------
+function showFeedback(symbol) {
+    const fb = document.getElementById("feedback");
+    fb.textContent = symbol;
+    fb.style.color = symbol === "✓" ? "green" : "red";
+    fb.style.opacity = 1;
+
+    setTimeout(() => {
+        fb.style.opacity = 0;
+    }, 600);
+}
+
+// ------------------------------
+// SHAPE COMBINATION RULES
+// ------------------------------
+const shapeRules = [
+    // Squares
+    { a: "□", b: "▪", result: "▣", options: ["□","▢","■","▪","▫","▣","▩","▤","▥","▦","◧","◨","⬒","⬓","◩","◪","◚","◛","⛋"] },
+    { a: "□", b: "■", result: "■", options: ["□","▢","■","▪","▫","▣","▩","▤","▥","▦","◧","◨","⬒","⬓","◩","◪","◚","◛","⛋"] },
+    { a: "▤", b: "▥", result: "▦", options: ["□","▢","■","▪","▫","▣","▩","▤","▥","▦","◧","◨","⬒","⬓","◩","◪","◚","◛","⛋"] },
+    { a: "◧", b: "◨", result: "■", options: ["□","▢","■","▪","▫","▣","▩","▤","▥","▦","◧","◨","⬒","⬓","◩","◪","◚","◛","⛋"] },
+    { a: "⬒", b: "⬓", result: "■", options: ["□","▢","■","▪","▫","▣","▩","▤","▥","▦","◧","◨","⬒","⬓","◩","◪","◚","◛","⛋"] },
+    { a: "◩", b: "◪", result: "■", options: ["□","▢","■","▪","▫","▣","▩","▤","▥","▦","◧","◨","⬒","⬓","◩","◪","◚","◛","⛋"] },
+    { a: "◚", b: "◛", result: "◙", options: ["□","▢","■","▪","▫","▣","▩","▤","▥","▦","◧","◨","⬒","⬓","◩","◪","◚","◛","⛋"] },
+
+
+    // Circles
+    { a: "◯", b: "●", result: "◉", options: ["◯","○","●","◉","◎","◒","◔","◕","◐","◑","♻","♽"] },
+    { a: "◯", b: "○", result: "◎", options: ["◯","○","●","◉","◎","◒","◔","◕","◐","◑","♻","♽"] },
+    { a: "◒", b: "◔", result: "◕", options: ["◯","○","●","◉","◎","◒","◔","◕","◐","◑","♻","♽"] },
+    { a: "◐", b: "◑", result: "●", options: ["◯","○","●","◉","◎","◒","◔","◕","◐","◑","♻","♽"] },
+    { a: "◯", b: "♻", result: "♽", options: ["◯","○","●","◉","◎","◒","◔","◕","◐","◑","♻","♽"] },
+    
+
+    // Diamonds
+    { a: "◇", b: "⬩", result: "◈", options: ["◇","◆","◈","⬖","⬗","⬘","⬙"] },
+    { a: "⬩", b: "◇", result: "◈", options: ["◇","◆","◈","⬖","⬗","⬘","⬙"] },
+    { a: "⬖", b: "⬗", result: "◆", options: ["◇","◆","◈","⬖","⬗","⬘","⬙"] },
+    { a: "⬘", b: "⬙", result: "◆", options: ["◇","◆","◈","⬖","⬗","⬘","⬙"] },
+    { a: "□", b: "◇", result: "⛋", options: ["◇","◆","◈","⬖","⬗","⬘","⬙"] },
+    
+
+    // Triangles
+    { a: "◭", b: "◮", result: "▲", options: ["◇","◆","◈","◭","◮","▲","▴","▽","▼","▾","⧊","⧋"] },
+
+    // Cross overlays
+    { a: "□", b: "✕", result: "⊠", options: ["✕","⊠","⊗","□","▢","■","◯","○","●","◉"] },
+];
+
+// ------------------------------
+// GAME ROUND
+// ------------------------------
+function newRound() {
+    const rule = shapeRules[Math.floor(Math.random() * shapeRules.length)];
+
+    const shapeA = rule.a;
+    const shapeB = rule.b;
+    const correct = rule.result;
+    const allShapes = rule.options;
+
+    // Display prompt
+    document.getElementById("prompt").textContent = `${shapeA}  +  ${shapeB}  =  ?`;
+
+    // Build answer options
+    const options = [correct];
+
+    while (options.length < 4) {
+        const candidate = allShapes[Math.floor(Math.random() * allShapes.length)];
+        if (!options.includes(candidate) && candidate !== shapeA && candidate !== shapeB) {
+            options.push(candidate);
+        }
+    }
+
+    // Shuffle
+    for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+    }
+
+    // Render options
+    const container = document.getElementById("options");
+    container.innerHTML = "";
+
+    options.forEach(shape => {
+        const btn = document.createElement("div");
+        btn.className = "option";
+        btn.textContent = shape;
+
+        btn.onclick = () => {
+            if (shape === correct) {
+                btn.classList.add("correct");
+                showFeedback("✓");
+            } else {
+                btn.classList.add("wrong");
+                showFeedback("✗");
+            }
+            setTimeout(newRound, 800);
+        };
+
+        container.appendChild(btn);
+    });
+
+}
+
+newRound();
+
+function generatePrintable() {
+    // Build a set of unique questions
+    const used = new Set();
+    const questions = [];
+
+    while (questions.length < 10) {
+        const rule = shapeRules[Math.floor(Math.random() * shapeRules.length)];
+        const key = rule.a + "+" + rule.b;
+
+        if (!used.has(key)) {
+            used.add(key);
+            questions.push(`${rule.a}  +  ${rule.b}  =  ______`);
+        }
+    }
+
+    // Printable HTML with smaller title
+    let printableHTML = `
+        <html>
+        <head>
+            <title>Shapes Worksheet</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    padding: 40px;
+                    font-size: 40px;
+                }
+                h1 {
+                    text-align: center;
+                    margin-bottom: 30px;
+                    font-size: 36px; /* smaller title */
+                }
+                .question {
+                    margin: 25px 0;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Shapes Combination – Worksheet</h1>
+            ${questions.map(q => `<div class="question">${q}</div>`).join("")}
+        </body>
+        </html>
+    `;
+
+    // Open in new tab
+    const win = window.open("", "_blank");
+    win.document.write(printableHTML);
+    win.document.close();
+
+    // Auto-print
+    win.print();
+}
+</script>
+
+</body>
+</html>
