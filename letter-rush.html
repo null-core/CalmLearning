@@ -1,0 +1,747 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letter Rush – Calm Learning</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 40px 20px;
+    background: #f5f5f5;
+    position: relative;
+    margin: 0;
+    min-height: 100vh;
+    color: #333;
+}
+
+#homeBtn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 42px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+h1 {
+    font-size: 38px;
+    margin-bottom: 20px;
+}
+
+.panel {
+    max-width: 800px;
+    margin: 25px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+}
+
+.hidden {
+    display: none !important;
+}
+
+#languageSelect {
+    font-size: 22px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    border: 2px solid #ddd;
+    background: white;
+    margin: 15px;
+}
+
+.gameBtn {
+    background: white;
+    padding: 15px 28px;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 22px;
+    margin: 10px;
+}
+
+.gameBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.20);
+}
+
+#hud {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 25px auto;
+    max-width: 850px;
+}
+
+.hudItem {
+    background: white;
+    padding: 15px 22px;
+    min-width: 125px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+    font-size: 20px;
+}
+
+.hudValue {
+    display: block;
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+#letter {
+    width: 220px;
+    height: 220px;
+    margin: 30px auto 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    border-radius: 25px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    font-size: 130px;
+    font-weight: bold;
+    user-select: none;
+}
+
+#letter.correct {
+    background: #b6f7b0;
+}
+
+#letter.wrong {
+    background: #ffb3b3;
+}
+
+#letterHint {
+    color: #777;
+    font-size: 17px;
+}
+
+#lives {
+    font-size: 35px;
+    letter-spacing: 5px;
+    margin: 15px 0;
+}
+
+#timerBar {
+    height: 14px;
+    max-width: 600px;
+    margin: 20px auto;
+    background: #ddd;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+#timerFill {
+    width: 100%;
+    height: 100%;
+    background: #80c99b;
+}
+
+#feedback {
+    font-size: 48px;
+    height: 60px;
+    opacity: 0;
+}
+
+#feedback.visible {
+    opacity: 1;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 14px 8px;
+    border-bottom: 1px solid #eee;
+    font-size: 19px;
+    text-align: left;
+}
+
+.summaryRow.total {
+    font-size: 25px;
+    font-weight: bold;
+    border-bottom: none;
+    margin-top: 10px;
+}
+
+#finalScore {
+    font-size: 64px;
+    font-weight: bold;
+    color: #31945a;
+    margin: 20px 0;
+}
+
+.smallText {
+    font-size: 16px;
+    color: #777;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 65px 12px 25px;
+    }
+
+    h1 {
+        font-size: 30px;
+    }
+
+    .panel {
+        padding: 22px 15px;
+    }
+
+    #letter {
+        width: 180px;
+        height: 180px;
+        font-size: 105px;
+    }
+
+    .hudItem {
+        min-width: 100px;
+        padding: 12px;
+        font-size: 16px;
+    }
+
+    .hudValue {
+        font-size: 23px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<a id="homeBtn" href="index.html">🏠</a>
+
+<h1>Letter Rush</h1>
+<p>Look at the letter. Find it on your keyboard. Be quick!</p>
+
+<div id="startScreen" class="panel">
+    <h2>Choose Your Language</h2>
+
+    <select id="languageSelect">
+        <option value="en">🇬🇧 English</option>
+        <option value="he">🇮🇱 עברית (Hebrew)</option>
+        <option value="ru">🇷🇺 Русский (Russian)</option>
+    </select>
+
+    <h2>Choose Difficulty</h2>
+
+    <select id="difficultySelect">
+        <option value="easy">🟢 EASY</option>
+        <option value="medium" selected>🟡 MEDIUM</option>
+        <option value="hard">🔴 HARD</option>
+    </select>
+
+    <p>🎯 5 levels</p>
+    <p>⏱️ 30 seconds per level</p>
+    <p>❤️ 5 lives per level</p>
+    <p>⚡ Each level gets faster!</p>
+
+    <p class="smallText">
+        Type the displayed letter before the next letter appears.
+        A missed letter costs one life.
+    </p>
+
+    <button class="gameBtn" id="startBtn">▶ Start Game</button>
+</div>
+
+<div id="gameScreen" class="hidden">
+
+    <div id="hud">
+        <div class="hudItem">
+            Level
+            <span class="hudValue" id="levelDisplay">1 / 5</span>
+        </div>
+
+        <div class="hudItem">
+            Time
+            <span class="hudValue" id="timeDisplay">30</span>
+        </div>
+
+        <div class="hudItem">
+            Correct
+            <span class="hudValue" id="correctDisplay">0</span>
+        </div>
+
+        <div class="hudItem">
+            Points
+            <span class="hudValue" id="pointsDisplay">0</span>
+        </div>
+    </div>
+
+    <div id="timerBar">
+        <div id="timerFill"></div>
+    </div>
+
+    <div id="lives">❤️❤️❤️❤️❤️</div>
+
+    <div id="letter">A</div>
+
+    <div id="letterHint">Type this letter on your keyboard!</div>
+
+    <div id="feedback" aria-live="polite">✓</div>
+
+    <p class="smallText">
+        Keyboard layout:
+        <strong id="keyboardLanguage">English</strong>
+    </p>
+</div>
+
+<div id="levelScreen" class="panel hidden">
+    <h2 id="levelTitle">Level Complete!</h2>
+    <p id="levelMessage"></p>
+
+    <div class="summaryRow">
+        <span>Correct answers</span>
+        <strong id="summaryCorrect">0</strong>
+    </div>
+
+    <div class="summaryRow">
+        <span>Level multiplier</span>
+        <strong id="summaryMultiplier">×10</strong>
+    </div>
+
+    <div class="summaryRow">
+        <span>Answer points</span>
+        <strong id="summaryAnswerPoints">0</strong>
+    </div>
+
+    <div class="summaryRow">
+        <span>Remaining lives bonus</span>
+        <strong id="summaryLifePoints">0</strong>
+    </div>
+
+    <div class="summaryRow total">
+        <span>Level points</span>
+        <strong id="summaryLevelPoints">0</strong>
+    </div>
+
+    <button class="gameBtn" id="nextBtn">Next Level ➜</button>
+</div>
+
+<div id="resultScreen" class="panel hidden">
+    <h2>🏆 Game Over!</h2>
+    <p>Your final score is</p>
+
+    <div id="finalScore">0</div>
+
+    <div id="finalBreakdown"></div>
+
+    <button class="gameBtn" id="restartBtn">🔄 Play Again</button>
+</div>
+
+<script>
+"use strict";
+
+// GAME SETTINGS
+const TOTAL_LEVELS = 5;
+const LEVEL_DURATION = 30;
+const STARTING_LIVES = 5;
+const LIFE_POINTS = 100;
+
+const MULTIPLIERS = [10, 20, 30, 40, 50];
+
+// Time allowed for each letter, in milliseconds.
+// Each array represents Levels 1–5.
+
+const DIFFICULTIES = {
+    easy:   [3000, 2600, 2200, 1800, 1500],
+    medium: [2400, 2000, 1600, 1200, 900],
+    hard:   [1800, 1400, 1100, 850, 600]
+};
+
+let selectedDifficulty = "medium";
+
+const LANGUAGES = {
+    en: {
+        name: "English",
+        letters: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    },
+    he: {
+        name: "Hebrew",
+        letters: "אבגדהוזחטיכלמנסעפצקרשת"
+    },
+    ru: {
+        name: "Russian",
+        letters: "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+    }
+};
+
+// GAME STATE
+let selectedLanguage = "en";
+let currentLevel = 1;
+let lives = STARTING_LIVES;
+let correctAnswers = 0;
+let totalScore = 0;
+let currentLetter = "";
+let letterActive = false;
+let gameRunning = false;
+let levelStartTime = 0;
+let letterDeadline = 0;
+
+let timerId = null;
+let nextLetterTimeout = null;
+let feedbackTimeout = null;
+let levelResults = [];
+
+// ELEMENTS
+const startScreen = document.getElementById("startScreen");
+const gameScreen = document.getElementById("gameScreen");
+const levelScreen = document.getElementById("levelScreen");
+const resultScreen = document.getElementById("resultScreen");
+const letterElement = document.getElementById("letter");
+const feedbackElement = document.getElementById("feedback");
+
+// SCREEN HELPERS
+function hideAllScreens() {
+    startScreen.classList.add("hidden");
+    gameScreen.classList.add("hidden");
+    levelScreen.classList.add("hidden");
+    resultScreen.classList.add("hidden");
+}
+
+function stopTimers() {
+    clearInterval(timerId);
+    clearTimeout(nextLetterTimeout);
+    clearTimeout(feedbackTimeout);
+}
+
+function randomLetter() {
+    const letters = Array.from(
+        LANGUAGES[selectedLanguage].letters
+    );
+
+    let next;
+
+    do {
+        next = letters[Math.floor(Math.random() * letters.length)];
+    } while (letters.length > 1 && next === currentLetter);
+
+    return next;
+}
+
+function updateLives() {
+    document.getElementById("lives").textContent =
+        "❤️".repeat(lives) +
+        "🖤".repeat(STARTING_LIVES - lives);
+}
+
+function updateHUD() {
+    document.getElementById("levelDisplay").textContent =
+        currentLevel + " / " + TOTAL_LEVELS;
+
+    document.getElementById("correctDisplay").textContent =
+        correctAnswers;
+
+    document.getElementById("pointsDisplay").textContent =
+        totalScore.toLocaleString();
+
+    updateLives();
+}
+
+function showFeedback(symbol, color) {
+    clearTimeout(feedbackTimeout);
+
+    feedbackElement.textContent = symbol;
+    feedbackElement.style.color = color;
+    feedbackElement.classList.add("visible");
+
+    feedbackTimeout = setTimeout(() => {
+        feedbackElement.classList.remove("visible");
+    }, 350);
+}
+
+// START GAME
+function startGame() {
+    stopTimers();
+
+    selectedLanguage =
+        document.getElementById("languageSelect").value;
+
+    selectedDifficulty =
+        document.getElementById("difficultySelect").value;
+
+    currentLevel = 1;
+    totalScore = 0;
+    levelResults = [];
+
+    startLevel();
+}
+
+function startLevel() {
+    stopTimers();
+
+    lives = STARTING_LIVES;
+    correctAnswers = 0;
+    currentLetter = "";
+    letterActive = false;
+    gameRunning = true;
+
+    levelStartTime = Date.now();
+
+    hideAllScreens();
+    gameScreen.classList.remove("hidden");
+
+    document.getElementById("keyboardLanguage").textContent =
+        LANGUAGES[selectedLanguage].name;
+
+    document.getElementById("timerFill").style.width = "100%";
+
+    updateHUD();
+    updateTimer();
+    showNextLetter();
+
+    timerId = setInterval(updateTimer, 50);
+}
+
+// TIMER
+function updateTimer() {
+    if (!gameRunning) return;
+
+    const elapsed = (Date.now() - levelStartTime) / 1000;
+    const remaining = Math.max(0, LEVEL_DURATION - elapsed);
+
+    document.getElementById("timeDisplay").textContent =
+        remaining.toFixed(1);
+
+    document.getElementById("timerFill").style.width =
+        (remaining / LEVEL_DURATION * 100) + "%";
+
+    if (remaining <= 0) {
+        finishLevel("time");
+    }
+}
+
+// LETTER ENGINE
+function showNextLetter() {
+    if (!gameRunning) return;
+
+    clearTimeout(nextLetterTimeout);
+
+    if (Date.now() - levelStartTime >= LEVEL_DURATION * 1000) {
+        finishLevel("time");
+        return;
+    }
+
+    currentLetter = randomLetter();
+    letterActive = true;
+
+    letterElement.textContent = currentLetter;
+    letterElement.classList.remove("correct", "wrong");
+
+    const interval =
+        DIFFICULTIES[selectedDifficulty][currentLevel - 1]; 
+    letterDeadline = Date.now() + interval;
+
+    nextLetterTimeout = setTimeout(() => {
+        if (!gameRunning || !letterActive) return;
+        loseLife();
+    }, interval);
+}
+
+// KEYBOARD INPUT
+document.addEventListener("keydown", function(event) {
+    if (!gameRunning || !letterActive) return;
+
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
+    if (Array.from(event.key).length !== 1) return;
+
+    event.preventDefault();
+
+    const pressed = event.key.toLocaleUpperCase();
+    const target = currentLetter.toLocaleUpperCase();
+
+    if (pressed === target) {
+        handleCorrectAnswer();
+    } else {
+        loseLife();
+    }
+});
+
+function handleCorrectAnswer() {
+    if (!gameRunning || !letterActive) return;
+
+    if (Date.now() >= letterDeadline) {
+        loseLife();
+        return;
+    }
+
+    letterActive = false;
+    clearTimeout(nextLetterTimeout);
+
+    correctAnswers++;
+
+    letterElement.classList.add("correct");
+    showFeedback("✓", "green");
+    updateHUD();
+
+    nextLetterTimeout = setTimeout(showNextLetter, 120);
+}
+
+function loseLife() {
+    if (!gameRunning || !letterActive) return;
+
+    letterActive = false;
+    clearTimeout(nextLetterTimeout);
+
+    lives = Math.max(0, lives - 1);
+
+    letterElement.classList.add("wrong");
+    showFeedback("✗", "red");
+    updateHUD();
+
+    if (lives <= 0) {
+        finishLevel("lives");
+        return;
+    }
+
+    nextLetterTimeout = setTimeout(showNextLetter, 250);
+}
+
+// LEVEL SCORING
+function finishLevel(reason) {
+    if (!gameRunning) return;
+
+    gameRunning = false;
+    letterActive = false;
+
+    stopTimers();
+
+    const multiplier = MULTIPLIERS[currentLevel - 1];
+    const answerPoints = correctAnswers * multiplier;
+    const lifePoints = lives * LIFE_POINTS;
+    const levelPoints = answerPoints + lifePoints;
+
+    totalScore += levelPoints;
+
+    levelResults.push({
+        level: currentLevel,
+        correct: correctAnswers,
+        multiplier: multiplier,
+        answerPoints: answerPoints,
+        lives: lives,
+        lifePoints: lifePoints,
+        levelPoints: levelPoints
+    });
+
+    document.getElementById("levelTitle").textContent =
+        currentLevel === TOTAL_LEVELS
+            ? "Final Level Complete!"
+            : "Level " + currentLevel + " Complete!";
+
+    document.getElementById("levelMessage").textContent =
+        reason === "lives"
+            ? "You ran out of lives. Let's see your score!"
+            : "Time is up! Well done.";
+
+    document.getElementById("summaryCorrect").textContent =
+        correctAnswers;
+
+    document.getElementById("summaryMultiplier").textContent =
+        "×" + multiplier;
+
+    document.getElementById("summaryAnswerPoints").textContent =
+        answerPoints.toLocaleString();
+
+    document.getElementById("summaryLifePoints").textContent =
+        lives + " × " + LIFE_POINTS + " = " +
+        lifePoints.toLocaleString();
+
+    document.getElementById("summaryLevelPoints").textContent =
+        levelPoints.toLocaleString();
+
+    hideAllScreens();
+    levelScreen.classList.remove("hidden");
+
+    document.getElementById("nextBtn").textContent =
+        currentLevel === TOTAL_LEVELS
+            ? "See Final Score 🏆"
+            : "Next Level ➜";
+}
+
+// NEXT LEVEL
+function nextLevel() {
+    if (currentLevel >= TOTAL_LEVELS) {
+        showFinalResults();
+        return;
+    }
+
+    currentLevel++;
+    startLevel();
+}
+
+// FINAL RESULTS
+function showFinalResults() {
+    hideAllScreens();
+
+    document.getElementById("finalScore").textContent =
+        totalScore.toLocaleString();
+
+    const breakdown = document.getElementById("finalBreakdown");
+    breakdown.replaceChildren();
+
+    levelResults.forEach(result => {
+        const row = document.createElement("div");
+        row.className = "summaryRow";
+
+        const label = document.createElement("span");
+        label.textContent =
+            "Level " + result.level +
+            " (" + result.correct + " correct)";
+
+        const score = document.createElement("strong");
+        score.textContent =
+            result.levelPoints.toLocaleString() + " pts";
+
+        row.append(label, score);
+        breakdown.appendChild(row);
+    });
+
+    const totalRow = document.createElement("div");
+    totalRow.className = "summaryRow total";
+
+    const totalLabel = document.createElement("span");
+    totalLabel.textContent = "TOTAL";
+
+    const totalValue = document.createElement("strong");
+    totalValue.textContent = totalScore.toLocaleString() + " pts";
+
+    totalRow.append(totalLabel, totalValue);
+    breakdown.appendChild(totalRow);
+
+    resultScreen.classList.remove("hidden");
+}
+
+// BUTTONS
+document.getElementById("startBtn").addEventListener(
+    "click", startGame
+);
+
+document.getElementById("nextBtn").addEventListener(
+    "click", nextLevel
+);
+
+document.getElementById("restartBtn").addEventListener(
+    "click", function() {
+        stopTimers();
+        gameRunning = false;
+        hideAllScreens();
+        startScreen.classList.remove("hidden");
+    }
+);
+</script>
+
+</body>
+</html>
